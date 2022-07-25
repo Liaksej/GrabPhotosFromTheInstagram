@@ -104,8 +104,6 @@ class GDrive(InstaDownloader):
 
         folder_vot = file.get('id')
 
-        # with open("list_of_mediafiles.json", encoding='utf-8') as file:
-        #     alist = json.loads(file.read().replace('\'', '"'))
         for count, name in enumerate(self.download_photo()):
             try:
                 # create drive api client
@@ -140,7 +138,5 @@ if __name__ == '__main__':
     config = ConfigParser()
     config.read('grabphotosfrominsta.ini')
     token_insta = config.get('section_a', 'token_insta')
-    # downloadr = InstaDownloader(token_insta)
-    # downloadr.download_photo()
     uploader = GDrive(token_insta)
     uploader.gdriver()
