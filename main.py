@@ -2,13 +2,14 @@ import requests
 import os
 import json
 import time
+import io
 import google.auth
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-from googleapiclient.http import MediaFileUpload
+from googleapiclient.http import MediaFileUpload, MediaIoBaseUpload
 from configparser import ConfigParser
 
 SCOPES = ['https://www.googleapis.com/auth/drive.metadata', 'https://www.googleapis.com/auth/drive']
@@ -113,19 +114,19 @@ class GDrive:
                     if name['media_type'] == 'VIDEO':
                         file_metadata = {'name': f'{name["id"]}.mp4', 'parents': [folder_vot]}
                         file_for = requests.get(url=name["media_url"])
-                        with open(f'photos/{name["id"]}.mp4', 'wb') as code:
-                            code.write(file_for.content)
-                        media = MediaFileUpload(f'photos/{name["id"]}.mp4',
+                        file_for_for = file_for.content
+                        ttt1 = io.BytesIO(file_for_for)
+                        media = MediaIoBaseUpload(ttt1,
                                                 mimetype='video/mp4')
                         file = service.files().create(body=file_metadata, media_body=media,
-                                                      fields='id,name,parents["Insta"]').execute()
+                                                      fields='id,name').execute()
                         print(F'File ID: {file.get("id")}')
                     else:
                         file_metadata = {'name': f'{name["id"]}.jpg', 'parents': [folder_vot]}
-                        file_for = requests.get(url=name["media_url"])
-                        with open(f'photos/{name["id"]}.jpg', 'wb') as code:
-                            code.write(file_for.content)
-                        media = MediaFileUpload(f'photos/{name["id"]}.jpg',
+                        file_for1 = (requests.get(url=name["media_url"]))
+                        file_for_for1 = file_for1.content
+                        ttt = io.BytesIO(file_for_for1)
+                        media = MediaIoBaseUpload(ttt,
                                                 mimetype='image/jpg')
                         file = service.files().create(body=file_metadata, media_body=media,
                                                       fields=f'id,name').execute()
@@ -142,10 +143,10 @@ class GDrive:
 
 
 if __name__ == '__main__':
-    # config = ConfigParser()
-    # config.read('grabphotosfrominsta.ini')
-    # token_insta = config.get('section_a', 'token_insta')
-    # downloadr = InstaDownloader(token_insta)
-    # downloadr.download_photo()
+    config = ConfigParser()
+    config.read('grabphotosfrominsta.ini')
+    token_insta = config.get('section_a', 'token_insta')
+    downloadr = InstaDownloader(token_insta)
+    downloadr.download_photo()
     uploader = GDrive()
     uploader.gdriver()
